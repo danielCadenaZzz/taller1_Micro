@@ -3,10 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Confirmar Nota</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            text-align: center;
+            background-color: #f7f7f7;
+        }
+        .container {
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px;
+            font-size: 1rem;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        p {
+            margin: 10px 0;
+        }
+    </style>
 </head>
 <body>
-    <H1>NOTA REGISTRADA</H1>
-    <script src="js/notasConfirm.js"></script>
+    <div class="container">
+        <h1>Confirmar Nota</h1>
+        <p id="status">Cargando datos...</p>
+        <button id="regresar">Volver</button>
+        <button id="borrar-btn" style="background-color: red; display: none;">Borrar</button>
+        <button id="editar-btn" style="background-color: orange; display: none;">Editar</button>
+    </div>
+
+    <script>
+        // Obtener parámetros de la URL
+        const params = new URLSearchParams(window.location.search);
+        const actividad = params.get('actividad');
+        const nota = params.get('nota');
+        const codEstudiante = params.get('codigo');
+        const notaId = params.get('notaId'); // Suponiendo que se pase el ID de la nota
+
+        // Elementos del DOM
+        const statusElement = document.getElementById('status');
+        const regresarBtn = document.getElementById('regresar');
+        const borrarBtn = document.getElementById('borrar-btn');
+        const editarBtn = document.getElementById('editar-btn');
+
+        async function guardarNota() {
+            if (!actividad || !nota || !codEstudiante) {
+                statusElement.textContent = 'Error: Parámetros incompletos.';
+                return;
+            }
+
+            try {
+                // Si no existe un ID de nota, es una nueva entrada, de lo contrario es una edición
+                const response = await fetch(notaId ? `http://127.0.0.1:8000/api/appNota/nota/${notaId}` : 'http://127.0.0.1:8000/api/appNota/nota', {
+                    method: notaId ? 'PUT' : 'POST', // Usamos PUT si hay un ID (para editar)
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        actividad: actividad,
+                        nota: parseFloat(nota),
+                        codEstudiante: codEstudiante
+                    })
+                });
+
+                if (response.ok) {
+                    statusElement.textContent = 'Nota registrada exitosamente.';
+                    if (notaId) {
+                        editarBtn.style.display = 'none'; // Ocultar el botón de editar si ya se guardó
+                        borrarBtn.style.display = 'none'; // Ocultar el botón de borrar si ya se guardó
+                    }
+                } else {
+                    const errorData = await response.json();
+                    statusElement.textContent = `Error al guardar: ${errorData.message || 'Error desconocido'}`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                statusElement.textContent = 'Error de conexión con el servidor.';
+            }
+        }
+
+        // Función para borrar el registro
+        async function borrarNota() {
+            if (!notaId) {
+                statusElement.textContent = 'Error: No se pudo encontrar el ID de la nota.';
+                return;
+            }
+
+            try {
+                const response = await fetch(`http://127.0.0.1:8000/api/appNota/nota/${notaId}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    statusElement.textContent = 'Nota eliminada exitosamente.';
+                    borrarBtn.style.display = 'none';
+                    editarBtn.style.display = 'none';
+                } else {
+                    const errorData = await response.json();
+                    statusElement.textContent = `Error al borrar: ${errorData.message || 'Error desconocido'}`;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                statusElement.textContent = 'Error de conexión con el servidor.';
+            }
+        }
+
+        // Botón regresar
+        regresarBtn.addEventListener('click', () => {
+            window.history.back();
+        });
+
+        // Mostrar botones de editar y borrar si existe un ID
+        if (notaId) {
+            editarBtn.style.display = 'inline-block';
+            borrarBtn.style.display = 'inline-block';
+        }
+
+       // Evento para editar
+editarBtn.addEventListener('click', () => {
+    const nuevaActividad = prompt("Editar Actividad:", actividad);
+    const nuevaNota = prompt("Editar Nota:", nota);
+    
+    // Verifica si los valores son válidos antes de guardar
+    if (nuevaActividad && nuevaNota && !isNaN(nuevaNota)) {
+        actividad = nuevaActividad;  // Actualiza el valor de la actividad
+        nota = parseFloat(nuevaNota);  // Actualiza el valor de la nota, asegurándote de que sea un número
+
+        // Llamada a la función para guardar la nota editada
+        guardarNota().then(() => {
+            // Actualiza los datos mostrados en la página sin recargarla
+            statusElement.textContent = 'Nota editada y guardada correctamente.';
+            document.getElementById('status').textContent = `Actividad: ${actividad}, Nota: ${nota}`;
+
+            // Si se desea que la tabla también se actualice:
+            const fila = document.querySelector(`#tabla-notas tbody tr[data-nota-id='${notaId}']`);
+            if (fila) {
+                fila.querySelector('.actividad').textContent = actividad;
+                fila.querySelector('.nota').textContent = nota;
+            }
+        });
+    } else {
+        statusElement.textContent = 'Error: Los datos ingresados no son válidos.';
+    }
+});
+
+
+
+        // Evento para borrar
+        borrarBtn.addEventListener('click', borrarNota);
+
+        // Guardar nota al cargar la página (solo si no hay un ID)
+        if (!notaId) {
+            window.onload = guardarNota;
+        }
+    </script>
 </body>
 </html>
