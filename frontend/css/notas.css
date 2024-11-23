@@ -1,0 +1,131 @@
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #b7dddf;
+}
+
+/* --- Botones */
+
+.btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+    font-size: 18px;
+  }
+  
+  .btn-eliminar {
+    color: rgb(255, 0, 0);
+  }
+  
+  .btn-modificar {
+    color: rgb(7, 7, 65);
+  }
+  
+  .btn-agregar {
+    color: rgb(0, 255, 0);
+  }
+  
+  .btn:hover {
+    opacity: 0.7;
+  }
+
+  /* --- Color de nota */
+
+  .nota-color1 {
+    color: red;
+  }
+
+  .nota-color2 {
+    color: rgb(219, 117, 0);
+  }
+
+  .nota-color3 {
+    color: rgb(0, 0, 0);
+  }
+
+  .nota-color4 {
+    color: rgb(0, 182, 9);
+  }
+
+  /* --- Formulario de las notaa */
+
+  form {
+    position: fixed;
+    left: calc(50% - 125px);
+    top: 40px;
+    max-width: 220px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 30px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+label {
+    display:block;
+    margin-bottom: 8px;
+    font-weight: bold;
+    color: #555;
+}
+
+input{
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 20px;
+    border: 1px solid #bd9999;
+    border-radius: 20px;
+    box-sizing: border-box;
+    background-color: #b39595;
+    font-size: 16px;
+}
+
+input:focus{
+    outline: none;
+    border-color: #4CAF50;
+    box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+}
+
+form button {
+    width: 100%;
+    background-color: #616161;
+    color: rgb(132, 110, 110);
+    padding: 14px;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+form button:hover {
+    background-color: #45a049;
+}
+
+#aviso-close{
+    position: fixed;
+    left: calc(50% - 75px);
+    top: 300px;
+
+    width: 150px;
+    background-color: #8d5757;
+    color: white;
+    padding: 14px;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+
+ /* --- aviso flotante */
+
+ #avisoBG {
+    display: none;
+    background-color: rgba(238, 238, 238, 0.6);
+    width: 50%;
+    height: 100%;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
